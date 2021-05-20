@@ -2,24 +2,36 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  FormHelperText,
-  Link,
-  TextField,
-  Typography
-} from '@material-ui/core';
+import { Box, Button, Checkbox, Container, FormHelperText, Link, TextField, Typography } from '@material-ui/core';
+import { gql, useMutation } from '@apollo/client';
+import { useState } from 'react';
+import UrojAlert from '../components/UrojAlert';
+import { SIGN_UP } from '../mixins/game/schema';
+
+const SignupAlert = (props) => {
+  const navigate = useNavigate();
+  return <UrojAlert
+    open={props.ok !== undefined}
+    severity={props.ok ? 'success' : 'error'}
+    action={
+      props.ok ?
+        <Button color='inherit' size='small' onClick={() => navigate('/login', { replace: true })}>
+          去登陆
+        </Button> : null
+    }
+    info={props.content}
+    onClose={props.onClose}
+  />;
+};
 
 const Register = () => {
-  const navigate = useNavigate();
+  const [signUp, { data }] = useMutation(SIGN_UP);
+  const [regState, setRegState] = useState(null);
 
   return (
     <>
       <Helmet>
-        <title>Register | Material Kit</title>
+        <title>注册 | UROJ</title>
       </Helmet>
       <Box
         sx={{
@@ -30,102 +42,111 @@ const Register = () => {
           justifyContent: 'center'
         }}
       >
-        <Container maxWidth="sm">
+        <Container maxWidth='sm'>
+          <SignupAlert {...regState} onClose={() => {
+            setRegState(null);
+          }} />
           <Formik
             initialValues={{
               email: '',
-              firstName: '',
-              lastName: '',
+              uid: '',
               password: '',
               policy: false
             }}
             validationSchema={
               Yup.object().shape({
-                email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                firstName: Yup.string().max(255).required('First name is required'),
-                lastName: Yup.string().max(255).required('Last name is required'),
-                password: Yup.string().max(255).required('password is required'),
-                policy: Yup.boolean().oneOf([true], 'This field must be checked')
+                email: Yup.string().email('邮箱格式非法').max(255).required('必须输入邮箱'),
+                uid: Yup.string().max(255).required('必须输入ID'),
+                password: Yup.string().max(255).required('必须输入密码'),
+                policy: Yup.boolean().oneOf([true], '必须同意本项')
               })
             }
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
+            onSubmit={(values, helper) => {
+              signUp({
+                variables: {
+                  input: {
+                    id: values.uid,
+                    email: values.email,
+                    password: values.password
+                  }
+                }
+              }).then(res => {
+                setRegState({
+                  ok: true,
+                  content: '用户' + res.data.signUp.id + '注册成功'
+                });
+              }).catch(e => {
+                setRegState({
+                  ok: false,
+                  content: '' + e
+                });
+              }).finally(() => {
+                helper.setSubmitting(false);
+              });
             }}
           >
             {({
-              errors,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-              touched,
-              values
-            }) => (
+                errors,
+                handleBlur,
+                handleChange,
+                handleSubmit,
+                isSubmitting,
+                touched,
+                values
+              }) => (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ mb: 3 }}>
                   <Typography
-                    color="textPrimary"
-                    variant="h2"
+                    color='textPrimary'
+                    variant='h2'
                   >
-                    Create new account
+                    注册新账户
                   </Typography>
                   <Typography
-                    color="textSecondary"
+                    color='textSecondary'
                     gutterBottom
-                    variant="body2"
+                    variant='body2'
                   >
-                    Use your email to create new account
+                    使用电子邮箱注册新账户
                   </Typography>
                 </Box>
                 <TextField
-                  error={Boolean(touched.firstName && errors.firstName)}
+                  error={Boolean(touched.uid && errors.uid)}
                   fullWidth
-                  helperText={touched.firstName && errors.firstName}
-                  label="First name"
-                  margin="normal"
-                  name="firstName"
+                  helperText={touched.uid && errors.uid}
+                  label='ID'
+                  margin='normal'
+                  name='uid'
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.firstName}
-                  variant="outlined"
-                />
-                <TextField
-                  error={Boolean(touched.lastName && errors.lastName)}
-                  fullWidth
-                  helperText={touched.lastName && errors.lastName}
-                  label="Last name"
-                  margin="normal"
-                  name="lastName"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.lastName}
-                  variant="outlined"
+                  value={values.uid}
+                  variant='outlined'
                 />
                 <TextField
                   error={Boolean(touched.email && errors.email)}
                   fullWidth
                   helperText={touched.email && errors.email}
-                  label="Email Address"
-                  margin="normal"
-                  name="email"
+                  label='邮箱'
+                  margin='normal'
+                  name='email'
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="email"
+                  type='email'
                   value={values.email}
-                  variant="outlined"
+                  variant='outlined'
                 />
                 <TextField
                   error={Boolean(touched.password && errors.password)}
                   fullWidth
                   helperText={touched.password && errors.password}
-                  label="Password"
-                  margin="normal"
-                  name="password"
+                  label='密码'
+                  margin='normal'
+                  name='password'
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="password"
+                  type='password'
                   value={values.password}
-                  variant="outlined"
+                  variant='outlined'
                 />
                 <Box
                   sx={{
@@ -136,23 +157,23 @@ const Register = () => {
                 >
                   <Checkbox
                     checked={values.policy}
-                    name="policy"
+                    name='policy'
                     onChange={handleChange}
                   />
                   <Typography
-                    color="textSecondary"
-                    variant="body1"
+                    color='textSecondary'
+                    variant='body1'
                   >
-                    I have read the
+                    我已经阅读并同意
                     {' '}
                     <Link
-                      color="primary"
+                      color='primary'
                       component={RouterLink}
-                      to="#"
-                      underline="always"
-                      variant="h6"
+                      to='#'
+                      underline='always'
+                      variant='h6'
                     >
-                      Terms and Conditions
+                      UROJ 用户政策与条款
                     </Link>
                   </Typography>
                 </Box>
@@ -163,28 +184,28 @@ const Register = () => {
                 )}
                 <Box sx={{ py: 2 }}>
                   <Button
-                    color="primary"
+                    color='primary'
                     disabled={isSubmitting}
                     fullWidth
-                    size="large"
-                    type="submit"
-                    variant="contained"
+                    size='large'
+                    type='submit'
+                    variant='contained'
                   >
-                    Sign up now
+                    注册
                   </Button>
                 </Box>
                 <Typography
-                  color="textSecondary"
-                  variant="body1"
+                  color='textSecondary'
+                  variant='body1'
                 >
-                  Have an account?
+                  已经有账户了？
                   {' '}
                   <Link
                     component={RouterLink}
-                    to="/login"
-                    variant="h6"
+                    to='/login'
+                    variant='h6'
                   >
-                    Sign in
+                    登入
                   </Link>
                 </Typography>
               </form>

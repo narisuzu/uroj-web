@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import {
   Avatar,
   Box,
@@ -9,9 +10,10 @@ import {
   Typography
 } from '@material-ui/core';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product, ...rest }) => (
+const StationCard = ({ station, ...rest }) => (
   <Card
     sx={{
       display: 'flex',
@@ -30,7 +32,7 @@ const ProductCard = ({ product, ...rest }) => (
       >
         <Avatar
           alt="Product"
-          src={product.media}
+          src={station.media}
           variant="square"
         />
       </Box>
@@ -40,14 +42,16 @@ const ProductCard = ({ product, ...rest }) => (
         gutterBottom
         variant="h4"
       >
-        {product.title}
+        <Link to={"/app/station/"+station.id}>
+          {station.title}
+        </Link>
       </Typography>
       <Typography
         align="center"
         color="textPrimary"
         variant="body1"
       >
-        {product.description}
+        {station.description}
       </Typography>
     </CardContent>
     <Box sx={{ flexGrow: 1 }} />
@@ -72,7 +76,7 @@ const ProductCard = ({ product, ...rest }) => (
             sx={{ pl: 1 }}
             variant="body2"
           >
-            Updated 2hr ago
+            {moment(station.created).format('YYYY/MM/DD')}
           </Typography>
         </Grid>
         <Grid
@@ -82,16 +86,14 @@ const ProductCard = ({ product, ...rest }) => (
             display: 'flex'
           }}
         >
-          <GetAppIcon color="action" />
+          <AccountCircle color="action" />
           <Typography
             color="textSecondary"
             display="inline"
             sx={{ pl: 1 }}
             variant="body2"
           >
-            {product.totalDownloads}
-            {' '}
-            Downloads
+            {station.authorId}
           </Typography>
         </Grid>
       </Grid>
@@ -99,8 +101,8 @@ const ProductCard = ({ product, ...rest }) => (
   </Card>
 );
 
-ProductCard.propTypes = {
-  product: PropTypes.object.isRequired
+StationCard.propTypes = {
+  station: PropTypes.object.isRequired
 };
 
-export default ProductCard;
+export default StationCard;

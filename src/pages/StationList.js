@@ -1,18 +1,20 @@
 import { Helmet } from 'react-helmet';
-import {
-  Box,
-  Container,
-  Grid,
-  Pagination
-} from '@material-ui/core';
+import { Box, Container, Grid, Pagination } from '@material-ui/core';
 import ProductListToolbar from 'src/components/product/ProductListToolbar';
-import ProductCard from 'src/components/product//ProductCard';
-import products from 'src/__mocks__/products';
+import StationCard from 'src/components/product/StationCard';
+import { gql } from '@apollo/client/core';
+import { useQuery } from '@apollo/client';
+import { LIST_ALL_STATION } from '../mixins/game/schema';
 
-const ProductList = () => (
-  <>
+const StationList = () => {
+  const {loading, error, data} = useQuery(LIST_ALL_STATION);
+
+  if (loading) return "loading";
+  if (error) return error;
+
+  return <>
     <Helmet>
-      <title>Products | Material Kit</title>
+      <title>车站 | Material Kit</title>
     </Helmet>
     <Box
       sx={{
@@ -28,15 +30,15 @@ const ProductList = () => (
             container
             spacing={3}
           >
-            {products.map((product) => (
+            {data.stations.map((station) => (
               <Grid
                 item
-                key={product.id}
+                key={station.id}
                 lg={4}
                 md={6}
                 xs={12}
               >
-                <ProductCard product={product} />
+                <StationCard station={station} />
               </Grid>
             ))}
           </Grid>
@@ -49,14 +51,14 @@ const ProductList = () => (
           }}
         >
           <Pagination
-            color="primary"
+            color='primary'
             count={3}
-            size="small"
+            size='small'
           />
         </Box>
       </Container>
     </Box>
-  </>
-);
+  </>;
+};
 
-export default ProductList;
+export default StationList;

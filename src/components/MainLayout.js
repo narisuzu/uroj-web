@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { experimentalStyled } from '@material-ui/core';
 import MainNavbar from './MainNavbar';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 const MainLayoutRoot = experimentalStyled('div')(
   ({ theme }) => ({
@@ -31,17 +32,25 @@ const MainLayoutContent = experimentalStyled('div')({
   overflow: 'auto'
 });
 
-const MainLayout = () => (
-  <MainLayoutRoot>
-    <MainNavbar />
-    <MainLayoutWrapper>
-      <MainLayoutContainer>
-        <MainLayoutContent>
-          <Outlet />
-        </MainLayoutContent>
-      </MainLayoutContainer>
-    </MainLayoutWrapper>
-  </MainLayoutRoot>
-);
+const MainLayout = () => {
+  const client = new ApolloClient({
+    uri: 'http://localhost:8002',
+    cache: new InMemoryCache()
+  });
 
+  return (
+    <ApolloProvider client={client}>
+      <MainLayoutRoot>
+        <MainNavbar />
+        <MainLayoutWrapper>
+          <MainLayoutContainer>
+            <MainLayoutContent>
+              <Outlet />
+            </MainLayoutContent>
+          </MainLayoutContainer>
+        </MainLayoutWrapper>
+      </MainLayoutRoot>
+    </ApolloProvider>
+  );
+};
 export default MainLayout;

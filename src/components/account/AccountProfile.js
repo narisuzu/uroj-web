@@ -10,15 +10,6 @@ import {
   Typography
 } from '@material-ui/core';
 
-const user = {
-  avatar: '/static/images/avatars/avatar_6.png',
-  city: 'Los Angeles',
-  country: 'USA',
-  jobTitle: 'Senior Developer',
-  name: 'Katarina Smith',
-  timezone: 'GTM-7'
-};
-
 const AccountProfile = (props) => (
   <Card {...props}>
     <CardContent>
@@ -30,7 +21,7 @@ const AccountProfile = (props) => (
         }}
       >
         <Avatar
-          src={user.avatar}
+          src={props.user.avatar}
           sx={{
             height: 100,
             width: 100
@@ -41,19 +32,13 @@ const AccountProfile = (props) => (
           gutterBottom
           variant="h3"
         >
-          {user.name}
+          {props.user.uid}
         </Typography>
         <Typography
           color="textSecondary"
           variant="body1"
         >
-          {`${user.city} ${user.country}`}
-        </Typography>
-        <Typography
-          color="textSecondary"
-          variant="body1"
-        >
-          {`${moment().format('hh:mm A')} ${user.timezone}`}
+          {`${moment(props.user.dateJoined).format('YYYY/MM/DD')}加入`}
         </Typography>
       </Box>
     </CardContent>

@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { experimentalStyled } from '@material-ui/core';
+import { styled } from '@material-ui/core';
 import DashboardNavbar from './DashboardNavbar';
 import DashboardSidebar from './DashboardSidebar';
+import { setContext } from '@apollo/client/link/context';
+import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
+import { useNavigate } from 'react-router';
 
-const DashboardLayoutRoot = experimentalStyled('div')(
+const DashboardLayoutRoot = styled('div')(
   ({ theme }) => ({
     backgroundColor: theme.palette.background.default,
     display: 'flex',
@@ -14,7 +17,7 @@ const DashboardLayoutRoot = experimentalStyled('div')(
   })
 );
 
-const DashboardLayoutWrapper = experimentalStyled('div')(
+const DashboardLayoutWrapper = styled('div')(
   ({ theme }) => ({
     display: 'flex',
     flex: '1 1 auto',
@@ -26,13 +29,13 @@ const DashboardLayoutWrapper = experimentalStyled('div')(
   })
 );
 
-const DashboardLayoutContainer = experimentalStyled('div')({
+const DashboardLayoutContainer = styled('div')({
   display: 'flex',
   flex: '1 1 auto',
   overflow: 'hidden'
 });
 
-const DashboardLayoutContent = experimentalStyled('div')({
+const DashboardLayoutContent = styled('div')({
   flex: '1 1 auto',
   height: '100%',
   overflow: 'auto'
@@ -40,22 +43,50 @@ const DashboardLayoutContent = experimentalStyled('div')({
 
 const DashboardLayout = () => {
   const [isMobileNavOpen, setMobileNavOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const authLink = setContext((_, { headers }) => {
+    // get the authentication token from local storage if it exists
+    const token = localStorage.getItem('token');
+    // return the headers to the context so httpLink can read them
+    if (!token) {
+      navigate('/login', { replace: true });
+      return null;
+    }
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : ''
+      }
+    };
+  });
+
+  const httpLink = createHttpLink({
+    uri: 'http://localhost:8001',
+  });
+
+  const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: new InMemoryCache()
+  });
 
   return (
-    <DashboardLayoutRoot>
-      <DashboardNavbar onMobileNavOpen={() => setMobileNavOpen(true)} />
-      <DashboardSidebar
-        onMobileClose={() => setMobileNavOpen(false)}
-        openMobile={isMobileNavOpen}
-      />
-      <DashboardLayoutWrapper>
-        <DashboardLayoutContainer>
-          <DashboardLayoutContent>
-            <Outlet />
-          </DashboardLayoutContent>
-        </DashboardLayoutContainer>
-      </DashboardLayoutWrapper>
-    </DashboardLayoutRoot>
+    <ApolloProvider client={client}>
+      <DashboardLayoutRoot>
+        <DashboardNavbar onMobileNavOpen={() => setMobileNavOpen(true)} />
+        <DashboardSidebar
+          onMobileClose={() => setMobileNavOpen(false)}
+          openMobile={isMobileNavOpen}
+        />
+        <DashboardLayoutWrapper>
+          <DashboardLayoutContainer>
+            <DashboardLayoutContent>
+              <Outlet />
+            </DashboardLayoutContent>
+          </DashboardLayoutContainer>
+        </DashboardLayoutWrapper>
+      </DashboardLayoutRoot>
+    </ApolloProvider>
   );
 };
 

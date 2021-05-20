@@ -81,19 +81,25 @@ const CustomerListResults = ({ customers, ...rest }) => {
                   />
                 </TableCell>
                 <TableCell>
-                  Name
+                  ID
                 </TableCell>
                 <TableCell>
-                  Email
+                  邮箱
                 </TableCell>
                 <TableCell>
-                  Location
+                  身份
                 </TableCell>
                 <TableCell>
-                  Phone
+                  班级
                 </TableCell>
                 <TableCell>
-                  Registration date
+                  注册日期
+                </TableCell>
+                <TableCell>
+                  上次登录
+                </TableCell>
+                <TableCell>
+                  用户状态
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -122,13 +128,13 @@ const CustomerListResults = ({ customers, ...rest }) => {
                         src={customer.avatarUrl}
                         sx={{ mr: 2 }}
                       >
-                        {getInitials(customer.name)}
+                        {getInitials(customer.id)}
                       </Avatar>
                       <Typography
                         color="textPrimary"
                         variant="body1"
                       >
-                        {customer.name}
+                        {customer.id}
                       </Typography>
                     </Box>
                   </TableCell>
@@ -136,13 +142,19 @@ const CustomerListResults = ({ customers, ...rest }) => {
                     {customer.email}
                   </TableCell>
                   <TableCell>
-                    {`${customer.address.city}, ${customer.address.state}, ${customer.address.country}`}
+                    {customer.role}
                   </TableCell>
                   <TableCell>
-                    {customer.phone}
+                    {customer.class ?customer.class : "无"}
                   </TableCell>
                   <TableCell>
-                    {moment(customer.createdAt).format('DD/MM/YYYY')}
+                    {moment(customer.dateJoined).format('YYYY/MM/DD')}
+                  </TableCell>
+                  <TableCell>
+                    {moment(customer.lastLogin).format('YYYY/MM/DD')}
+                  </TableCell>
+                  <TableCell>
+                    {customer.isActive ? "启用" : "禁用"}
                   </TableCell>
                 </TableRow>
               ))}

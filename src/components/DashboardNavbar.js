@@ -13,6 +13,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
 import Logo from './Logo';
+import { useNavigate } from 'react-router';
 
 const DashboardNavbar = ({ onMobileNavOpen, ...rest }) => {
   const [notifications] = useState([]);
@@ -37,7 +38,10 @@ const DashboardNavbar = ({ onMobileNavOpen, ...rest }) => {
               <NotificationsIcon />
             </Badge>
           </IconButton>
-          <IconButton color="inherit">
+          <IconButton color="inherit" onClick={() => {
+            localStorage.removeItem('token');
+            window.location.reload();
+          }}>
             <InputIcon />
           </IconButton>
         </Hidden>

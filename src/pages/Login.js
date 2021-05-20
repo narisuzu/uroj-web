@@ -2,25 +2,23 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Link,
-  TextField,
-  Typography
-} from '@material-ui/core';
-import FacebookIcon from 'src/icons/Facebook';
-import GoogleIcon from 'src/icons/Google';
+import { gql, useMutation } from '@apollo/client';
+
+import { useState } from 'react';
+import { Alert, Box, Button, Container, Link, Snackbar, TextField, Typography } from '@material-ui/core';
+import UrojAlert from '../components/UrojAlert';
+import { SIGN_IN } from '../mixins/game/schema';
 
 const Login = () => {
   const navigate = useNavigate();
 
+  const [signIn, { data }] = useMutation(SIGN_IN);
+  const [errState, setErrState] = useState(null);
+
   return (
     <>
       <Helmet>
-        <title>Login | Material Kit</title>
+        <title>登录 | Material Kit</title>
       </Helmet>
       <Box
         sx={{
@@ -31,145 +29,112 @@ const Login = () => {
           justifyContent: 'center'
         }}
       >
-        <Container maxWidth="sm">
+        <Container maxWidth='sm'>
+          <UrojAlert open={errState !== null} severity='error' info={errState} onClose={
+            () => setErrState(null)
+          }/>
           <Formik
             initialValues={{
-              email: 'demo@devias.io',
-              password: 'Password123'
+              uid: 'zhray',
+              password: 'kotori2333'
             }}
             validationSchema={Yup.object().shape({
-              email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-              password: Yup.string().max(255).required('Password is required')
+              uid: Yup.string().max(255).required('必须输入用户ID'),
+              password: Yup.string().max(255).required('必须输入密码')
             })}
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
+            onSubmit={(values, helper) => {
+              signIn({
+                variables: {
+                  input: {
+                    id: values.uid,
+                    password: values.password
+                  }
+                }
+              }).then(res => {
+                localStorage.setItem('token', res.data.signIn);
+                navigate('/app/dashboard', { replace: true });
+              }).catch(e => {
+                setErrState(""+e);
+              }).finally(() => {
+                helper.setSubmitting(false);
+              });
             }}
           >
             {({
-              errors,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-              touched,
-              values
-            }) => (
+                errors,
+                handleBlur,
+                handleChange,
+                handleSubmit,
+                isSubmitting,
+                touched,
+                values
+              }) => (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ mb: 3 }}>
                   <Typography
-                    color="textPrimary"
-                    variant="h2"
+                    color='textPrimary'
+                    variant='h2'
                   >
-                    Sign in
+                    登入
                   </Typography>
                   <Typography
-                    color="textSecondary"
+                    color='textSecondary'
                     gutterBottom
-                    variant="body2"
+                    variant='body2'
                   >
-                    Sign in on the internal platform
+                    登入Universal Railway Online Judge，使用全部服务
                   </Typography>
                 </Box>
-                <Grid
-                  container
-                  spacing={3}
-                >
-                  <Grid
-                    item
-                    xs={12}
-                    md={6}
-                  >
-                    <Button
-                      color="primary"
-                      fullWidth
-                      startIcon={<FacebookIcon />}
-                      onClick={handleSubmit}
-                      size="large"
-                      variant="contained"
-                    >
-                      Login with Facebook
-                    </Button>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    md={6}
-                  >
-                    <Button
-                      fullWidth
-                      startIcon={<GoogleIcon />}
-                      onClick={handleSubmit}
-                      size="large"
-                      variant="contained"
-                    >
-                      Login with Google
-                    </Button>
-                  </Grid>
-                </Grid>
-                <Box
-                  sx={{
-                    pb: 1,
-                    pt: 3
-                  }}
-                >
-                  <Typography
-                    align="center"
-                    color="textSecondary"
-                    variant="body1"
-                  >
-                    or login with email address
-                  </Typography>
-                </Box>
+
                 <TextField
-                  error={Boolean(touched.email && errors.email)}
+                  error={Boolean(touched.uid && errors.uid)}
                   fullWidth
-                  helperText={touched.email && errors.email}
-                  label="Email Address"
-                  margin="normal"
-                  name="email"
+                  helperText={touched.uid && errors.uid}
+                  label='ID'
+                  margin='normal'
+                  name='uid'
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="email"
-                  value={values.email}
-                  variant="outlined"
+                  value={values.uid}
+                  variant='outlined'
                 />
                 <TextField
                   error={Boolean(touched.password && errors.password)}
                   fullWidth
                   helperText={touched.password && errors.password}
-                  label="Password"
-                  margin="normal"
-                  name="password"
+                  label='Password'
+                  margin='normal'
+                  name='password'
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="password"
+                  type='password'
                   value={values.password}
-                  variant="outlined"
+                  variant='outlined'
                 />
                 <Box sx={{ py: 2 }}>
                   <Button
-                    color="primary"
+                    color='primary'
                     disabled={isSubmitting}
                     fullWidth
-                    size="large"
-                    type="submit"
-                    variant="contained"
+                    size='large'
+                    type='submit'
+                    variant='contained'
                   >
-                    Sign in now
+                    登入
                   </Button>
                 </Box>
                 <Typography
-                  color="textSecondary"
-                  variant="body1"
+                  color='textSecondary'
+                  variant='body1'
                 >
-                  Don&apos;t have an account?
+                  还没有账户？
                   {' '}
                   <Link
                     component={RouterLink}
-                    to="/register"
-                    variant="h6"
+                    to='/register'
+                    variant='h6'
                   >
-                    Sign up
+                    注册
                   </Link>
                 </Typography>
               </form>

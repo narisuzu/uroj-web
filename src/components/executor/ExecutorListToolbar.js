@@ -1,16 +1,11 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  TextField,
-  InputAdornment,
-  SvgIcon
-} from '@material-ui/core';
+import { Box, Button, Card, CardContent, InputAdornment, SvgIcon, TextField } from '@material-ui/core';
 import { Search as SearchIcon } from 'react-feather';
+import { useNavigate } from 'react-router-dom';
 
-const CustomerListToolbar = (props) => (
-  <Box {...props}>
+const ExecutorListToolbar = (props) => {
+  const navigate = useNavigate();
+
+  return <Box {...props}>
     <Box
       sx={{
         display: 'flex',
@@ -24,10 +19,13 @@ const CustomerListToolbar = (props) => (
         导出
       </Button>
       <Button
-        color="primary"
-        variant="contained"
+        color='primary'
+        variant='contained'
+        onClick={
+          () => navigate('/app/new_executor')
+        }
       >
-        添加用户
+        添加运行时
       </Button>
     </Box>
     <Box sx={{ mt: 3 }}>
@@ -38,24 +36,24 @@ const CustomerListToolbar = (props) => (
               fullWidth
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position="start">
+                  <InputAdornment position='start'>
                     <SvgIcon
-                      fontSize="small"
-                      color="action"
+                      fontSize='small'
+                      color='action'
                     >
                       <SearchIcon />
                     </SvgIcon>
                   </InputAdornment>
                 )
               }}
-              placeholder="搜索用户"
-              variant="outlined"
+              placeholder='搜索运行时'
+              variant='outlined'
             />
           </Box>
         </CardContent>
       </Card>
     </Box>
-  </Box>
-);
+  </Box>;
+};
 
-export default CustomerListToolbar;
+export default ExecutorListToolbar;
