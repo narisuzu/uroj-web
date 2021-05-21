@@ -34,7 +34,7 @@ const MainLayoutContent = experimentalStyled('div')({
 
 const MainLayout = () => {
   const client = new ApolloClient({
-    uri: 'http://localhost:8002',
+    uri: 'http://uroj.sozr.cn:8002',
     cache: new InMemoryCache()
   });
 

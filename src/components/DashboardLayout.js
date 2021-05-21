@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { styled } from '@material-ui/core';
 import DashboardNavbar from './DashboardNavbar';
@@ -62,7 +62,7 @@ const DashboardLayout = () => {
   });
 
   const httpLink = createHttpLink({
-    uri: 'http://localhost:8001',
+    uri: 'http://uroj.sozr.cn:8001',
   });
 
   const client = new ApolloClient({
